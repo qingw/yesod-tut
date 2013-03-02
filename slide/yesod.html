@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Haskell 与 Yesod，利用 DSL 加速 Web 开发 </title>
+
+    <meta name="description" content="A course on the world's fastest growing functional programming language">
+    <meta name="author" content="Nishant Shukla">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/serif.css" id="theme">
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+
+    <style>
+      body {
+      padding-top: 30px;
+      padding-bottom: 40px;
+      }
+    </style>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/pojoaque.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+
+  </head>
+
+
+  <body>
+
+    <!-- script src="nav.js"></script --!>
+
+    <script>
+      function toggleElements(one, two) {
+          document.getElementById(one).style.display = 'none';
+          document.getElementById(two).style.display = 'block';
+      }
+    </script>
+
+
+    <div class="reveal">
+
+      <!-- Slides begin here! -->
+      <div class="slides">
+
+	  <section>
+            <h2>Haskell 简介</h2>
+	    <blockquote>一门 高性能，强类型，纯函数式，静态类型的现代编程语言</blockquote>
+	    <img width="640" src="img/haskell.png">
+	  </section>
+	  
+	  <section>
+	    <h2>Hello World!</h2>
+	    <p>创建 <code class="haskell">Main.hs</code> 并写下如下代码</p>
+	    <pre><code class="haskell">
+main :: IO ()
+main = do
+  putStrLn "Hello world!"
+	    </code></pre>
+
+	    <br>
+
+	    <p>Run the code</p>
+	    <small>
+	      <table border="1">
+		<tr>
+		  <td width="25%" class="fragment roll-in">
+		    <p>安装 Haskell 环境</p>
+		    <pre><code class="bash">
+$ pacman -S haskell-platform
+$ apt-get install haskell-platform
+$ zypper install haskell-platform
+		    </code></pre>
+		  </td>
+		  <td width="25%" class="fragment roll-in">
+		    <p>用解释器运行</p>
+		    <pre><code class="bash">
+$ ghci
+Prelude> :load Main.hs 
+*Main> main
+		    </code></pre>
+		  </td>
+		  <td width="25%" class="fragment roll-in">
+		    <p>当作脚本运行 <code class="haskell">runhaskell</code></p>
+		    <pre><code class="bash">
+$ runhaskell Main.hs
+		    </code></pre>
+		  </td>
+		  <td width="25%" class="fragment roll-in">
+		    <p>也可以编译运行!</p>
+		    <pre><code class="bash">
+$ ghc --make Main.hs
+$ ./Main
+		    </code></pre>
+		  </td>
+
+		</tr>
+	      </table>
+
+	    </small>
+	  </section>
+
+
+	  <section>
+
+	  <!--section>
+	    <h2>基本语法 1/4</h2>
+	    <p>定义数据</p>
+	    <div>
+		    <div style="height:600px;width:50%;float:center;overflow:hidden;">
+		      <p>Haskell</p>
+	          <pre><code class="haskell">
+-- 定义数据
+name = "James Bond"
+age :: Int
+age = 50
+
+-- 定义函数
+nextInt :: Int -> Int
+nextInt x = x + 1
+
+equal x y = x == y
+isEven x = equal (mod x 2) 0
+
+-- 函数也是数据
+isEven' :: Int -> Bool
+isEven' = \x -> mod x 2 == 0
+              </code> </pre>
+            </div>
+		    <div style="height:600px;width:50%;float:left;overflow:hidden;">
+		      <p>Lisp</p>
+	          <pre><code class="lisp">
+
+(define name "James Bond")
+
+(define age 50)
+
+
+(define (nextInt n)
+  ( + n 1))
+
+(define (equal? x y) ( = x y))
+(define (even? x)
+  (= (mod x 2)
+     0))
+(define even??
+ (lambda (x) (= (mod x 2) 0)))
+              </code> </pre>
+            </div>
+	    </div>
+      </section--!>
+
+
+
+	  <section>
+	    <h3>基本语法 1/4</h3>
+	    <div>
+		    <div style="height:600px;width:50%;float:left;overflow:hidden;">
+	          <pre><code class="haskell">
+-- 定义数据
+name = "James Bond"
+age :: Int
+age = 50
+
+-- 定义函数
+nextInt :: Int -> Int
+nextInt x = x + 1
+
+equal x y = x == y
+isEven x = equal (mod x 2) 0
+
+-- 函数也是数据
+isEven' :: Int -> Bool
+isEven' = \x -> mod x 2 == 0
+              </code> </pre>
+            </div>
+		    <div style="height:600px;width:50%;float:left;overflow:hidden;">
+	          <pre><code class="haskell">
+(define name "James Bond")
+
+(define age 50)
+
+
+(define (nextInt n)
+  ( + n 1))
+
+(define (equal? x y) ( = x y))
+(define (even? x)
+  (= (mod x 2)
+     0))
+
+(define even??
+ (lambda (x) (= (mod x 2) 0)))
+              </code> </pre>
+            </div>
+	    </div>
+      </section>
+
+
+
+	  <section>
+	    <h3>基本语法 2/4</h3>
+	    <div>
+		    <div style="height:600px;width:50%;float:left;overflow:hidden;">
+	          <pre><code class="haskell">
+-- 递归函数
+fact 0 = 1
+fact n = n * fact (n - 1)
+-- 定义 List    
+list = 1:2:3:4:5:[]
+list' = [1,2,3,4,5]
+list'' = fromTo 1 6
+-- 模式匹配 + 汉编
+fromTo :: Int -> Int -> [Int]
+fromTo 开始 结束
+    | 开始 == 结束 = []
+    | 开始 < 结束 = 开始 : (fromTo (开始 + 1) 结束)
+    | 开始 > 结束 = 开始 : (fromTo (开始 - 1) 结束)
+-- Curry
+fromZero = fromTo 0
+toZero = \x -> fromTo x 0
+-- Compose
+isOdd :: Int -> Bool
+isOdd = isEven . nextInt
+              </code> </pre>
+            </div>
+		    <div style="height:600px;width:50%;float:left;overflow:hidden;">
+	          <pre><code class="haskell">
+(define (fact n)
+ (cond ((= n 0) 0)
+       (else (* n (fact (- n 1)))))
+
+
+(define ls (cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil))))))
+(define ls1 (quote (1 2 3 4 5)))
+
+
+
+(define (fromTo start end)
+ (cond ((= start end) nil)
+       ((< start end) (cons start (fromTo (+ start 1) end)))
+       ((> start end) (cons start (fromTo (- start 1) end)))))
+
+
+(define fromZero
+ (lambda (end) (fromTo 0 end)))
+              </code> </pre>
+            </div>
+	    </div>
+      </section>
+
+	  <section>
+	    <h3>基本语法 3/4</h3>
+	    <p>创建 ADT </p>
+	    <div width="400">
+	      <pre><code class="haskell">
+-- 自定义数据类型
+data Point = Point Double Double
+
+--data Maybe a = Just a | Nothing
+
+data Person = Person
+    { personName ::String
+    , personAge :: Maybe Int
+    } deriving Show
+john = Person "John" (Just 35)
+jim = Person "Jim" Nothing
+          </code> </pre>
+	    </div>
+      </section>
+
+
+	  <section>
+	    <h3>基本语法 4/4</h3>
+	    <p>输入输出(IO) </p>
+	    <div>
+	          <pre><code class="haskell">
+-- 输入输出
+main :: IO ()
+main = do
+    print $ john
+    print $ jim
+    print $ jim { personAge = Just 20}
+    putStrLn "You name:"
+    name <- getLine
+    putStrLn "You age:"
+    age <- getLine
+    putStrLn "You are:"
+    print $ Person name (Just (read age))
+              </code> </pre>
+	    </div>
+      </section>
+	  </section>
+
+	  <section>
+	  <section>
+        <h3> Yesod Hello World </h3>
+<pre> <code class="haskell">
+import Yesod
+
+data HelloWorld = HelloWorld
+
+mkYesod "HelloWorld" [parseRoutes|
+/ HomeR GET
+|]
+
+instance Yesod HelloWorld
+
+getHomeR :: Handler RepHtml
+getHomeR = defaultLayout [whamlet|
+&lth3&gt Hello World!
+    &ltp&gt This is my first web page
+|]
+
+main :: IO ()
+main = warpDebug 3000 HelloWorld
+</code> </pre>
+
+	  </section>
+
+	  <section>
+    <h3> 浏览器里看看: </h3>
+    <p>
+	    <img width="640" src="img/hello-yesod.png">
+    </p>
+	  </section>
+
+	  <section>
+    <h3> Hello World 分析: 路由 </h3>
+    <pre> <code class="haskell">
+
+mkYesod "HelloWorld" [parseRoutes|
+/ HomeR GET
+/admin AdminR GET POST
+/blog/edit BlogEditR GET POST
+|]
+    </code> </pre>
+<p>语法</p>
+    <pre> <code class="haskell">
+[url] [Handler Name] [Method list]
+    </code> </pre>
+
+	  </section>
+
+	  <section>
+    <h3> Hello World 分析: HTML 模板 </h3>
+    <pre> <code class="haskell">
+
+isLogined = True
+name = "Yesod"
+
+getHomeR :: Handler RepHtml
+getHomeR = defaultLayout [whamlet|
+&lth3&gt Hello World!
+    &ltp&gt This is my first web page
+    $if isLogined
+      &ltp&gt Hello : #{name}
+    $else
+      &ltp&gt Sorry , you did not registered!
+
+|]
+    </code> </pre>
+	  </section>
+
+
+	  </section>
+
+
+
+
+
+	  <section>
+
+	  <section>
+	    <h3>DSL :: JSON !</h3>
+<p>处理 JSON</p>
+<pre> <code class="javascript">
+{
+    "personName" : "Jonh",
+    "personAge"  : 30
+}
+</code> </pre>
+
+
+	  </section>
+
+	  <section>
+	    <h3><code class="haskell">Aeson :: </code>Library DSL</h3>
+	    <pre><code class="haskell">
+data Person = Person
+    { personName :: String
+    , personAge :: Maybe Int
+    } deriving Show
+
+instance FromJSON Person where
+    parseJSON (Object v) = Person
+        <$> v .: "personName"
+        <*> v .: "personAge"
+    parseJSON _ = mzero
+
+instance ToJSON Person where
+    toJSON (Person name age) = Object . fromList $
+        ["personName" .= name, "personAge" .= age]
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3><code class="javascript">JSON :: </code>实例</h3>
+	    <pre><code class="haskell">
+john = Person "John" (Just 20)
+girl = Person "Alic" Nothing
+
+str = "{\"personAge\": 100, \"personName\": \"Tom\"}"
+
+main = do
+    putStrLn $ encode john
+    putStrLn $ encode girl
+
+    let tom = decode str :: Maybe Person
+    let badman = decode "eval drop table *" :: Maybe Person
+
+    putStrLn $ encode tom
+    putStrLn $ encode badman
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3><code class="javascript">JSON :: </code>DRY</h3>
+	    <pre><code class="haskell">
+data Person = Person
+    { personName :: String
+    , personAge :: Maybe Int
+    } deriving (Generic, Show)
+
+instance FromJSON Person
+instance ToJSON Person
+
+john = Person "John" (Just 20)
+girl = Person "Alic" Nothing
+
+str = "{\"personAge\": 100, \"personName\": \"Tom\"}"
+
+main = do
+    BL.putStrLn $ encodePretty john
+    BL.putStrLn $ encodePretty girl
+    let tom = decode str :: Maybe Person
+    let badman = decode "eval drop table *" :: Maybe Person
+    BL.putStrLn $ encodePretty tom
+    BL.putStrLn $ encodePretty badman
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3><code class="javascript">Yesod :: RESTful</code></h3>
+	    <pre><code class="haskell">
+data Person = Person
+    { personName :: String
+    , personAge :: Maybe Int
+    } deriving (Generic, Show)
+instance FromJSON Person
+instance ToJSON Person
+
+data REST = REST
+instance Yesod REST
+mkYesod "REST" [parseRoutes|
+/person PersonR GET
+|]
+
+john = Person "John" (Just 20)
+getPersonR = do
+    let html = [whamlet|name:#{personName john}, age:#{show $ personAge john}|]
+    defaultLayoutJson html john
+
+main :: IO ()
+main = warpDebug 3000 REST
+	    </code></pre>
+	  </section>
+
+	  <section>
+    <h3> 浏览器里看看: </h3>
+    <p>
+	    <img width="720" src="img/rest.png">
+    </p>
+	  </section>
+
+	  </section>
+
+
+
+
+
+
+	  <section>
+	  <section>
+	    <h2>DSL :: 表单 !</h3>
+        <div class="fragment grow">
+	    <h4>
+        用户输入 <-> Web 程序 <span class="fragment fade-out"> <-> 后端存储 </span>
+        </div>
+	    </h4>
+
+	  </section>
+
+	  <section>
+	    <h3>一般的表单处理</h3>
+	    <pre><code class="haskell">
+mkYesod "App" [parseRoutes|
+/person PersonR GET POST
+|]
+
+getPersonR = defaultLayout [whamlet|
+&ltform method="post"&gt
+  &ltlabel&gtName
+  &ltinput type="text" name="personName"&gt
+  &ltlabel&gtAge
+  &ltinput type="text" name="personAge"&gt
+  &ltinput type="submit" value="提交" name="submit"&gt
+|]
+
+postPersonR = do
+  name <- Text.unpack <$> runInputPost (ireq textField "personName")
+  age <- Text.unpack <$> runInputPost (ireq textField "personAge")
+  let you = Person (name) (parseInt age)
+  defaultLayout [whamlet|
+You are: #{show you}
+|]
+	    </code></pre>
+	  </section>
+
+
+	  <section>
+	    <h3>运行结果</h3>
+	    <div class="fragment fade-out">
+	      <br/>
+            <form method="post">
+              <label>Name</label>
+              <input type="text" name="personName"></input>
+              <label>Age</label>
+              <input type="text" name="personAge"></input>
+              <br/>
+              <input type="submit" value="提交" name="submit"></input>
+            </form>
+        </div>
+	    <div class="fragment roll-in">
+	      <br/>
+	      <h3>You are: Person {personName = "Alice", personAge = Just 200}</h3>
+        </div>
+	  </section>
+
+	  <section>
+	    <h3>表单 :: DRY</h3>
+	    <pre><code class="haskell">
+personForm :: Html -&gt MForm App App (FormResult Person, Widget)
+personForm = renderDivs $ Person
+    &lt$&gt (Text.unpack <$> areq textField "personName" Nothing)
+    &lt*&gt aopt intField "personAge" Nothing
+
+getPersonR = do
+    (widget, enctype) &lt- generateFormPost personForm
+    defaultLayout [whamlet|
+&ltform method=post action=@{PersonR} enctype=#{enctype}&gt
+    ^{widget}
+    &ltinput type=submit value=提交&gt
+|]
+
+postPersonR = do
+    ((result, widget), enctype) &lt- runFormPost personForm
+    case result of
+        FormSuccess (person :: Person) -&gt defaultLayout [whamlet|You are: #{show person} .|]
+        _ -&gt defaultLayout [whamlet| Invalid input, let's try again.|]
+
+	    </code></pre>
+	  </section>
+
+
+	  </section>
+
+
+
+	  <section>
+	  <section>
+	    <h2>DSL :: 存储 !</h3>
+        <div class="fragment grow">
+	    <h4>
+        <span class="fragment fade-out">用户输入 <-> </span> Web 程序 <-> 后端存储
+        </div>
+	    </h4>
+
+	  </section>
+
+	  <section>
+	    <h3>数据库 :: 刀耕火种的年代</h3>
+	    <pre><code class="haskell">
+john = Person "John" (Just 55)
+tom  = Person "Tom" (Just 30)
+
+insertPerson conn (Person name age) = do
+    insertStmt <- prepare conn "insert into person values (?, ?);"
+    bindText insertStmt 1 (pack name)
+    maybe (bindNull insertStmt 2) (\i -> bindInt insertStmt 2 i) age
+    step insertStmt
+        
+main = do
+    conn <- open "a.db"
+    createStmt <- prepare conn "CREATE TABLE person (name VARCHAR NOT NULL, age INT)"
+    step createStmt
+
+    insertPerson conn john
+    insertPerson conn tom
+   
+    selectStmt <- prepare conn "select name from person order by age limit 1";
+    step selectStmt
+    [PersistText name] <- columns selectStmt
+    print $ name
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3>数据库 :: 这是一个危险的年代</h3>
+	      <img height="640" src="img/xkcd.png">
+	  </section>
+
+	  <section>
+	    <h3>数据库 :: 防不胜防啊</h3>
+	      <img height="640" src="img/car.jpg">
+	  </section>
+
+	  <section>
+	    <h3>Yesod 的回应 : That's not gonna happend!</h3>
+	    <pre><code class="haskell">
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistUpperCase|
+Person
+    name String
+    age Int
+    deriving Show
+BlogPost
+    title String
+    authorId PersonId
+    deriving Show
+|]
+main :: IO ()
+main = runSqlite ":memory:" $ do
+    runMigration migrateAll
+    johnId <- insert $ Person "John Doe" 35
+    janeId <- insert $ Person "Jane Doe" 20
+    insert $ BlogPost "My fr1st post" johnId
+    insert $ BlogPost "One post" johnId
+    oneJohnPost <- selectList [BlogPostAuthorId ==. johnId] [LimitTo 1]
+    liftIO . print $ map entityVal oneJohnPost
+    john <- get johnId
+    liftIO $ print (john :: Maybe Person)
+    delete janeId
+    deleteWhere [BlogPostAuthorId ==. johnId]
+	    </code></pre>
+	  </section>
+
+
+	  </section>
+
+
+
+
+	  <section>
+	  <section>
+	    <h2>实战 :: 60 行代码完成一个 Blog</h3>
+	    <h3 class="fragment roll-in">我是认真的
+	  </section>
+
+	  <section>
+	    <h3>Import 和 type class 关联 (22行)</h3>
+	    <pre><code class="haskell">
+import Control.Monad
+import Data.Text
+import qualified Data.Text.Lazy as TL
+import Text.Markdown
+import Database.Persist.Sqlite
+import Control.Applicative
+import Control.Monad.Logger
+import Yesod
+
+instance MonadLogger IO where
+    monadLoggerLog _ _ _ _ = return ()
+instance Yesod App
+instance YesodPersist App where
+    type YesodPersistBackend App = SqlPersist
+    runDB action = getYesod >>= runSqlConn action . appConn
+
+instance RenderMessage App FormMessage where
+    renderMessage _ _ = defaultFormMessage
+
+data App = App{
+    appConn :: Connection
+}
+
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3>定义URL 和表单 (8行)</h3>
+	    <pre><code class="haskell">
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistUpperCase|
+Entry
+  title Text
+  content Text |]
+mkYesod "App" [parseRoutes|
+/     HomeR GET POST |]
+
+form = renderDivs $ Entry <$> areq textField "标题" Nothing
+    <*> (unTextarea <$> areq textareaField "正文" Nothing)
+
+	    </code></pre>
+	  </section>
+	  <section>
+	    <h3>主页(17行)</h3>
+	    <pre><code class="haskell">
+getHomeR = do
+    (widget, enctype) &lt- generateFormPost form
+    es &lt- runDB $ selectList [] []
+    let blogs = map entityVal es
+    defaultLayout $ do
+        setTitle $ "我的博客"
+        toWidget [whamlet|
+$forall entry &lt- blogs
+    &lth1&gt 标题 : #{entryTitle entry}
+    &ltp&gt 内容
+    &ltdiv&gt  #{renderMD $ entryContent entry}
+&lth3&gt张贴新文章
+&ltform method=post action=@{HomeR} enctype=#{enctype}&gt
+    ^{widget}
+    &ltinput type=submit value=发布&gt
+|] where renderMD = markdown def . TL.fromStrict
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3>处理Post 和存储(10行)</h3>
+	    <pre><code class="haskell">
+postHomeR = do
+    ((result, widget), enctype) <- runFormPost form
+    case result of
+        FormSuccess (entry :: Entry) -> void $ runDB $ insert entry
+        _ -> setMessage "表单不正确"
+    void $ redirect HomeR
+
+main = withSqliteConn "blog.db" $ \conn -> do
+    runSqlConn (runMigration migrateAll) conn
+    warpDebug 3000 (App conn)
+	    </code></pre>
+	  </section>
+
+	  <section>
+	    <h3>效果</h3>
+        <p> <img src="img/blog.png"> </p>
+
+	  </section>
+	  </section>
+
+	  <section>
+
+	  <section>
+	    <h3>学习资源</h3>
+	    <div>
+		    <div style="height:600px;width:30%;float:left;overflow:hidden;">
+        <p> Yesod 作者的书
+        <p> <img src="img/book.jpg"> </p>
+            </div>
+		    <div style="height:600px;width:30%;float:left;overflow:hidden;">
+        <p> Haskell 宝典
+        <p> <img src="img/rwh.jpg"> </p>
+            </div>
+		    <div style="height:600px;width:30%;float:left;overflow:hidden;">
+        <p> Haskell 快速入门
+        <p> <img src="img/lyah.png"> </p>
+            </div>
+	    </div>
+      </section>
+	  <section>
+    <h3>本课源代码: </h3><a href="http://github.com/xl/yesod-tut">http://github.com/xl/yesod-tut</a>
+      </section>
+
+	  </section>
+
+
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+      mouseWheel: true,
+      rollingLinks: false,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+
+    </script>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
+    <script src="js/vendor/bootstrap.min.js"></script>
+
+    <script src="js/main.js"></script>
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-29747714-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+
+
+  </body>
+</html>
