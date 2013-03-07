@@ -55,6 +55,8 @@
       <!-- Slides begin here! -->
       <div class="slides">
 
+<section>
+
 	  <section>
             <h2>Haskell 简介</h2>
 	    <blockquote>一门 高性能，强类型，纯函数式，静态类型的现代编程语言</blockquote>
@@ -111,58 +113,6 @@ $ ./Main
 
 	    </small>
 	  </section>
-
-
-	  <section>
-
-	  <!--section>
-	    <h2>基本语法 1/4</h2>
-	    <p>定义数据</p>
-	    <div>
-		    <div style="height:600px;width:50%;float:center;overflow:hidden;">
-		      <p>Haskell</p>
-	          <pre><code class="haskell">
--- 定义数据
-name = "James Bond"
-age :: Int
-age = 50
-
--- 定义函数
-nextInt :: Int -> Int
-nextInt x = x + 1
-
-equal x y = x == y
-isEven x = equal (mod x 2) 0
-
--- 函数也是数据
-isEven' :: Int -> Bool
-isEven' = \x -> mod x 2 == 0
-              </code> </pre>
-            </div>
-		    <div style="height:600px;width:50%;float:left;overflow:hidden;">
-		      <p>Lisp</p>
-	          <pre><code class="lisp">
-
-(define name "James Bond")
-
-(define age 50)
-
-
-(define (nextInt n)
-  ( + n 1))
-
-(define (equal? x y) ( = x y))
-(define (even? x)
-  (= (mod x 2)
-     0))
-(define even??
- (lambda (x) (= (mod x 2) 0)))
-              </code> </pre>
-            </div>
-	    </div>
-      </section--!>
-
-
 
 	  <section>
 	    <h3>基本语法 1/4</h3>
@@ -302,9 +252,29 @@ main = do
               </code> </pre>
 	    </div>
       </section>
-	  </section>
 
 	  <section>
+	    <h3>Parsec :: 锋芒小试</h3>
+	    <p>告别正则表达式</p>
+	    <p>WTF: "href\s*=\s*(?:""(?&lt1&gt[^""]*)""|(?&lt1&gt\S+))"</p>
+	        <div>
+	          <pre><code class="haskell">
+
+import Text.ParserCombinators.Parsec
+
+csvFile = endBy line eol
+line = sepBy cell (char ',')
+cell = many (noneOf ",\n")
+eol = char '\n'
+
+parseCSV :: String -> Either ParseError [[String]]
+parseCSV input = parse csvFile "(unknown)" input
+
+              </code> </pre>
+	        </div>
+      </section>
+
+
 	  <section>
         <h3> Yesod Hello World </h3>
 <pre> <code class="haskell">
@@ -373,15 +343,6 @@ getHomeR = defaultLayout [whamlet|
 |]
     </code> </pre>
 	  </section>
-
-
-	  </section>
-
-
-
-
-
-	  <section>
 
 	  <section>
 	    <h3>DSL :: JSON !</h3>
@@ -495,14 +456,6 @@ main = warpDebug 3000 REST
     </p>
 	  </section>
 
-	  </section>
-
-
-
-
-
-
-	  <section>
 	  <section>
 	    <h2>DSL :: 表单 !</h3>
         <div class="fragment grow">
@@ -584,12 +537,6 @@ postPersonR = do
 	    </code></pre>
 	  </section>
 
-
-	  </section>
-
-
-
-	  <section>
 	  <section>
 	    <h2>DSL :: 存储 !</h3>
         <div class="fragment grow">
@@ -605,6 +552,7 @@ postPersonR = do
 	    <pre><code class="haskell">
 john = Person "John" (Just 55)
 tom  = Person "Tom" (Just 30)
+badman  = Person "Call me LeiFeng', 1); drop table person; --" (Just 30)
 
 insertPerson conn (Person name age) = do
     insertStmt <- prepare conn "insert into person values (?, ?);"
@@ -624,6 +572,7 @@ main = do
     step selectStmt
     [PersistText name] <- columns selectStmt
     print $ name
+    insertPerson conn badman
 	    </code></pre>
 	  </section>
 
@@ -666,13 +615,6 @@ main = runSqlite ":memory:" $ do
 	    </code></pre>
 	  </section>
 
-
-	  </section>
-
-
-
-
-	  <section>
 	  <section>
 	    <h2>实战 :: 60 行代码完成一个 Blog</h3>
 	    <h3 class="fragment roll-in">我是认真的
@@ -761,13 +703,32 @@ main = withSqliteConn "blog.db" $ \conn -> do
 	  </section>
 
 	  <section>
-	    <h3>效果</h3>
+	    <h4>效果</h4>
         <p> <img src="img/blog.png"> </p>
 
 	  </section>
-	  </section>
 
 	  <section>
+	    <h3>异步处理?</h3>
+	    <pre><code class="haskell">
+sleep n = threadDelay (n * 1000000)
+postHomeR = do
+    <div class="fragment roll-in">
+    <b>liftIO $ sleep 100 -- or do IO for user</b> </div>
+    ((result, widget), enctype) <- runFormPost form
+    case result of
+        FormSuccess (entry :: Entry) -> void $ runDB $ insert entry
+        _ -> setMessage "表单不正确"
+    void $ redirect HomeR
+	    </code></pre>
+    <div class="fragment roll-in"> <div class="fragment fade-out"> <p>Nodejs?</p> </div> </div>
+    <div class="fragment roll-in"> <div class="fragment fade-out"> <p>不需要</p> </div> </div>
+    <div class="fragment roll-in"> <div class="fragment fade-out"> <p>你已经异步了!!!</p> </div> </div>
+	  </section>
+	  <section>
+	    <h3>性能?</h3>
+        <p> <img src="http://www.yesodweb.com/static/benchmarks/2011-03-17/extra-large.png"> </p>
+	  </section>
 
 	  <section>
 	    <h3>学习资源</h3>
