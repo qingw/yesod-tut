@@ -254,6 +254,33 @@ main = do
       </section>
 
 	  <section>
+	    <h3>锋芒小试 :: 压缩解压缩</h3>
+	    <p>代码即文档</p>
+	        <div class="fragment">
+	          <pre><code class="haskell">
+
+--import qualified Codec.Compression.Zlib
+--import qualified Codec.Compression.Snappy
+
+import qualified Data.ByteString.Lazy as L
+import qualified Codec.Compression.GZip
+
+compress :: L.ByteString -> L.ByteString
+compress = Codec.Compression.GZip.compress
+
+decompress :: L.ByteString -> L.ByteString
+decompress = Codec.Compression.GZip.decompress
+
+main :: IO ()
+main = L.interact  compress
+
+-- main = L.interact  decompress
+
+              </code> </pre>
+	        </div>
+      </section>
+
+	  <section>
 	    <h3>Parsec :: 锋芒小试</h3>
 	    <p>告别正则表达式</p>
 	    <p>WTF: "href\s*=\s*(?:""(?&lt1&gt[^""]*)""|(?&lt1&gt\S+))"</p>
